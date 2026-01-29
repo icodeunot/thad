@@ -214,3 +214,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# My guesses
+tailwind.config.js
+package.json
+db.sqlite3
