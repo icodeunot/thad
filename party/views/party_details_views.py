@@ -24,12 +24,12 @@ class PartyDetailPartial(LoginRequiredMixin, View):
         return render(
             request,
             "party/party_detail/partial_party_edit_form.html",
-            {"party": party, "form": form}
+            {"party": party, "form": form},
         )
 
     def put(self, request, party_uuid, *args, **kwargs):
         party = get_object_or_404(Party, uuid=party_uuid)
-        data = QueryDict(request.body).dict()
+        data = QueryDict(request.body.decode())
         form = PartyForm(data, instance=party)
 
         if form.is_valid():
