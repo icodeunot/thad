@@ -1,3 +1,5 @@
+import pytest
+
 from django.urls import reverse
 
 from party.models import Guest
@@ -54,3 +56,44 @@ def test_mark_guest_not_attending(authenticated_client, create_user, create_part
     assert len(list(response.context["guests"])) == 2
 
 
+@pytest.mark.parametrize(
+    "guest_attending_status, search_text, attending_filter, expected_number_of_filteredguests",
+    [
+        (True, "an", "all", 1),
+        (True, "be", "all", 0),
+        (True, "be", "attending", 0),
+        (True, "be", "not_attending", 0),
+        (True, "an", "attending", 1),
+        (True, "an", "not_attending", 0),
+        (True, "", "attending", 1),
+        (True, "", "not_attending", 0),
+        (False, "an", "all", 1),
+        (False, "be", "all", 0),
+        (False, "be", "attending", 0),
+        (False, "be", "not_attending", 0),
+        (False, "an", "attending", 0),
+        (False, "an", "not_attending", 1),
+        (False, "", "attending", 0),
+        (False, "", "not_attending", 1),
+    ],
+)
+def test_filter_guest_by_status_and_search(
+        guest_attending_status,
+        search_text,
+        attending_filter,
+        expected_number_of_filteredguests,
+        authenticated_client,
+        create_user, 
+        create_party,
+        create_guest,
+):
+    party = create_party(organizer=create_user)
+
+    create_guest(party=party, name="Anna", attending=guest_attending_status)
+
+    url = reverse("partial_filter_guests", args=[party.uuid])
+    data = {"attending_filter": attending_filter, "guest_search": search_text}
+    
+    response = authenticated_client(create_user).post(url, data)
+
+    assert len(response.context["guests"]) == expected_number_of_filteredguests
