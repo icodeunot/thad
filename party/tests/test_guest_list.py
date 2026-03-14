@@ -38,6 +38,7 @@ def test_mark_guest_attending(authenticated_client, create_user, create_party, c
     assert Guest.objects.get(uuid=guest_2.uuid).attending is False
     assert response.status_code == 200
     assert len(list(response.context["guests"])) == 2
+    assert response.context["party_id"] == party.uuid
 
 
 def test_mark_guest_not_attending(authenticated_client, create_user, create_party, create_guest):
@@ -54,7 +55,7 @@ def test_mark_guest_not_attending(authenticated_client, create_user, create_part
     assert Guest.objects.get(uuid=guest_2.uuid).attending is True
     assert response.status_code == 200
     assert len(list(response.context["guests"])) == 2
-
+    assert response.context["party_id"] == party.uuid
 
 @pytest.mark.parametrize(
     "guest_attending_status, search_text, attending_filter, expected_number_of_filteredguests",
